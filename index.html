@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no"/>
+<title>WealthLens</title>
+
+<!-- ── Android / Chrome / Edge PWA install ────────────────────────────────── -->
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#7c3aed"/>
+
+<!-- ── iOS Safari "Add to Home Screen" ─────────────────────────────────────
+     iOS ignores manifest.json for install metadata — it needs these tags
+     directly, plus an apple-touch-icon. ─────────────────────────────────── -->
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="WealthLens"/>
+<link rel="apple-touch-icon" href="icons/icon-192.png"/>
+
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { height:100%; background:#F2F3F5; }
+  #splash {
+    position:fixed; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background:#F2F3F5;
+  }
+  #splash img { width:84px; height:84px; border-radius:20px; margin-bottom:16px; }
+  #splash .name {
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:20px; font-weight:800; letter-spacing:-.5px;
+    background:linear-gradient(90deg,#7c3aed,#0284c7);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  #splash .sub { margin-top:6px; font-size:12px; color:#9c8ec0; letter-spacing:.5px; }
+  #splash .spin {
+    margin-top:22px; width:22px; height:22px; border-radius:50%;
+    border:3px solid #e0daf0; border-top-color:#7c3aed;
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  #manualLink {
+    margin-top:26px; padding:10px 20px; border-radius:100px;
+    background:#7c3aed; color:#fff; font-family:sans-serif; font-size:13px;
+    font-weight:700; text-decoration:none; display:none;
+  }
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <img src="icons/icon-192.png" alt="WealthLens"/>
+  <div class="name">WealthLens</div>
+  <div class="sub">1 Cr Club · Trading Intelligence</div>
+  <div class="spin"></div>
+  <a id="manualLink" href="https://wealthlensos.streamlit.app/">Tap to open →</a>
+</div>
+
+<script>
+  // Streamlit Cloud refuses to be iframed (sends a CSP frame-ancestors
+  // header that blocks embedding from any other origin) — so instead of
+  // embedding the app, this does a full top-level redirect into it. That's
+  // not restricted by frame-ancestors since it's real navigation, not
+  // framing. The brief splash above is just what's visible during the
+  // redirect + Streamlit's own cold-start.
+  var TARGET = "https://wealthlensos.streamlit.app/";
+
+  setTimeout(function () {
+    window.location.replace(TARGET);
+  }, 400);
+
+  // Safety net: if something blocks the automatic redirect (e.g. a
+  // locked-down in-app browser), reveal a manual tap-through link instead
+  // of leaving the user stuck on a spinner forever.
+  setTimeout(function () {
+    document.getElementById("manualLink").style.display = "inline-block";
+  }, 3000);
+
+  // Register the service worker (required for Android install eligibility).
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("service-worker.js").catch(function () {});
+    });
+  }
+</script>
+
+</body>
+</html>
